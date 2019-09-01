@@ -1,0 +1,1 @@
+## Yet Another SQL to MapReduce and Spark Segregator
