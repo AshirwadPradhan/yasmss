@@ -3,10 +3,9 @@
 """
 from enum import Enum
 
-temp0 = "SELECT * FROM <TABLE1> INNERJOIN <TABLE2> ON <CONDITION1> WHERE <CONDITION2>"
-temp1 = "SELECT <COLUMNS>,FUNC(COLUMN1) FROM <TABLE> GROUPBY <COLUMNS> HAVING FUNC(COLUMN1)>X"
 handles_join = ['select', '*', 'from', 'innerjoin', 'on', 'where']
 handles_group = ['select', 'from', 'groupby', 'having']
+valid_aggr = ['count', 'min', 'max', 'sum']
 
 
 class Template(Enum):
@@ -157,6 +156,8 @@ class QuerySetGroupBy:
     def _comparegrouphav(self):
         if not self.selcolumns[-1] == self.havlval:
             print('Group and Having condition error')
+        if not self.aggfunc in valid_aggr:
+            print('Invalid aggregate function Error')
 
     def getdata(self):
         return self
@@ -240,11 +241,3 @@ class Parse:
             self._whichTemplate = Template.GROUPBY
         else:
             self._whichTemplate = Template.ERROR
-
-
-if __name__ == "__main__":
-    parseObj = Parse()
-    parse = parseObj.parseQuery(
-        query="SELECT   *   FROM  USERS   INNERJOIn   ZIPCODE ON   USERS. USERID == ZIPCODE.USERID   WHERE  ZIPCODE .CITY  == PILANI")
-    # query="SELECT ZIPCODE, XHI, DRUM, ADD(NUMBER ) FROM LABU GROUPBY TIME, MONEY  ,   PLACE  HAVING ADD(NUMBER     ) < =       0 ")
-    print(parse)
