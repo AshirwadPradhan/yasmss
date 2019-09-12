@@ -1,5 +1,5 @@
-""" Accepts the template from the REST API and parse it find out which tables, columns to
-    create jobs
+""" Accepts the query from the REST Client and parses it find out appropriate conditions based
+    on the query template.
 """
 from enum import Enum
 
@@ -17,6 +17,9 @@ class Template(Enum):
 
 
 class QuerySetJoin:
+    """Class to carry query data after parsing JOIN template
+    """
+
     def __init__(self, fromtable, jointable, oncond, wherecond):
         self.fromtable = fromtable
         self.jointable = jointable
@@ -80,6 +83,9 @@ class QuerySetJoin:
 
 
 class QuerySetGroupBy:
+    """Class to carry query data after parsing GROUPBY template
+    """
+
     def __init__(self, selectcol, fromtable, groupcond, havcond):
         self.selectcol = selectcol
         self.selcolumns = None
@@ -167,12 +173,18 @@ class QuerySetGroupBy:
 
 
 class Parse:
+    """Main Parser class::
+    parseQuery(query:str) -> QuerySetJoin or QuerySetGroupBy
+    """
 
     def __init__(self):
         self._whichTemplate = Template.JOIN
         self.query = ""
 
     def parseQuery(self, query):
+        """Parse the string query into QuerySetJoin or QuerySetGroupBy depending on the
+            template of the query
+        """
         self.query = query
         self._decideTemplate()
         self._cleanQuery()
