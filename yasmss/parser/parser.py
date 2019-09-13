@@ -36,7 +36,9 @@ class QuerySetJoin:
 
     def _processoncond(self):
         if '==' not in self.oncond:
-            print('On Condition error')
+            # print('On Condition error')
+            raise NotImplementedError(
+                'On clause operator is undefined. Only "==" is allowed')
         else:
             self.onop = '=='
             tmp = self.oncond.split('==')
@@ -46,7 +48,8 @@ class QuerySetJoin:
     def _processwherecond(self):
         allowed_op = ['<=', '<', '==', '>', '>=']
         if not any(x in self.wherecond for x in allowed_op):
-            print('Where Condition error')
+            # print('Where Condition error')
+            raise NotImplementedError('Where clause operator is undefined')
         elif '<' in self.wherecond:
             if '<=' in self.wherecond:
                 self.whereop = '<='
@@ -130,7 +133,8 @@ class QuerySetGroupBy:
     def _processhaving(self):
         allowed_op = ['<=', '<', '==', '>', '>=']
         if not any(x in self.havcond for x in allowed_op):
-            print('Having Condition error')
+            # print('Having Condition error')
+            raise NotImplementedError('Having clause operator is undefined')
         elif '<' in self.havcond:
             if '<=' in self.havcond:
                 self.havop = '<='
@@ -161,9 +165,12 @@ class QuerySetGroupBy:
 
     def _comparegrouphav(self):
         if not self.selcolumns[-1] == self.havlval:
-            print('Group and Having condition error')
+            # print('Group and Having condition error')
+            raise NameError(
+                'Different Aggregate Function in Select clause and Having clause')
         if not self.aggfunc in valid_aggr:
-            print('Invalid aggregate function Error')
+            # print('Invalid aggregate function Error')
+            raise NameError('Not a valid Aggregate Function')
 
     def getdata(self):
         return self
@@ -193,10 +200,12 @@ class Parse:
 
         if self._whichTemplate == Template.JOIN:
             if len(query_list) != 10:
-                print("Error in Join query: Missing arguments")
+                # print("Error in Join query: Missing arguments")
+                raise ValueError('Query Error: Missing Arguments')
             elif len(query_list) == 10:
                 if not all(item in query_list for item in handles_join):
-                    print('Error in Join query: Missing args')
+                    # print('Error in Join query: Missing args')
+                    raise ValueError('Query Error: Unstructured Query')
                 else:
                     fromtable = query_list[3]
                     jointable = query_list[5]
@@ -206,10 +215,12 @@ class Parse:
                         fromtable, jointable, oncond, wherecond)
         elif self._whichTemplate == Template.GROUPBY:
             if len(query_list) != 8:
-                print("Error in Groupby query: Missing arguments")
+                # print("Error in Groupby query: Missing arguments")
+                raise ValueError('Query Error: Missing Arguments')
             elif len(query_list) == 8:
                 if not all(item in query_list for item in handles_group):
-                    print('Error in Groupby query: Arguments missing')
+                    # print('Error in Groupby query: Arguments missing')
+                    raise ValueError('Query Error: Unstructured Query')
                 else:
                     selectcol = query_list[1]
                     fromtable = query_list[3]
@@ -218,7 +229,9 @@ class Parse:
                     parsedQuery = QuerySetGroupBy(
                         selectcol, fromtable, groupcond, havcond)
         else:
-            print('Query Error')
+            # print('Query Error')
+            raise ValueError(
+                'Query Error: Does not contain InnerJoin or Groupby keyword')
         return parsedQuery
 
     def _cleanQuery(self):
@@ -232,8 +245,9 @@ class Parse:
         elif self._whichTemplate == Template.GROUPBY:
             match_handles = handles_group
         else:
-            print("Query Error")
-            return
+            # print("Query Error")
+            raise ValueError(
+                'Query Error: Does not contain InnerJoin or Groupby keyword')
 
         for i, q_sp in enumerate(q_strip):
             if q_sp not in match_handles:
