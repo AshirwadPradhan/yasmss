@@ -199,7 +199,6 @@ class Parse:
         query_list = self.query.split()
 
         if self._whichTemplate == Template.JOIN:
-            print(query_list)
             if len(query_list) != 10:
                 # print("Error in Join query: Missing arguments")
                 raise ValueError('Query Error: Missing Arguments')
