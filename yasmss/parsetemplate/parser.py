@@ -42,8 +42,8 @@ class QuerySetJoin:
         else:
             self.onop = '='
             tmp = self.oncond.split('=')
-            self.onlval = tmp[0]
-            self.onrval = tmp[1]
+            self.onlval = tmp[0].lower()
+            self.onrval = tmp[1].lower()
 
     def _processwherecond(self):
         allowed_op = ['<=', '<', '=', '>', '>=']
@@ -54,28 +54,28 @@ class QuerySetJoin:
             if '<=' in self.wherecond:
                 self.whereop = '<='
                 tmp = self.wherecond.split('<=')
-                self.wherelval = tmp[0]
+                self.wherelval = tmp[0].lower()
                 self.whererval = tmp[1]
             else:
                 self.whereop = '<'
                 tmp = self.wherecond.split('<')
-                self.wherelval = tmp[0]
+                self.wherelval = tmp[0].lower()
                 self.whererval = tmp[1]
         elif '>' in self.wherecond:
             if '>=' in self.wherecond:
                 self.whereop = '>='
                 tmp = self.wherecond.split('>=')
-                self.wherelval = tmp[0]
+                self.wherelval = tmp[0].lower()
                 self.whererval = tmp[1]
             else:
                 self.whereop = '>'
                 tmp = self.wherecond.split('>')
-                self.wherelval = tmp[0]
+                self.wherelval = tmp[0].lower()
                 self.whererval = tmp[1]
         elif '=' in self.wherecond:
             self.whereop = '='
             tmp = self.wherecond.split('=')
-            self.wherelval = tmp[0]
+            self.wherelval = tmp[0].lower()
             self.whererval = tmp[1]
 
     def getdata(self):
@@ -108,27 +108,27 @@ class QuerySetGroupBy:
 
     def _processelect(self):
         if ',' in self.selectcol:
-            tmp = self.selectcol.split(',')
+            tmp = self.selectcol.lower().split(',')
             self.selcolumns = tmp
             if '(' in tmp[-1]:
                 indexl = tmp[-1].index('(')
                 indexr = tmp[-1].index(')')
-                self.aggfunc = tmp[-1][:indexl]
-                self.aggcol = tmp[-1][indexl+1:indexr]
+                self.aggfunc = tmp[-1][:indexl].lower()
+                self.aggcol = tmp[-1][indexl+1:indexr].lower()
         else:
             self.selcolumns = self.selectcol
-            tmp = self.selcolumns
+            tmp = self.selcolumns.lower()
             if '(' in tmp:
                 indexl = tmp.index('(')
                 indexr = tmp.index(')')
-                self.aggfunc = tmp[:indexl]
-                self.aggcol = tmp[indexl+1:indexr]
+                self.aggfunc = tmp[:indexl].lower()
+                self.aggcol = tmp[indexl+1:indexr].lower()
 
     def _processgroup(self):
         if ',' in self.groupcond:
-            self.groupcolumns = self.groupcond.split(',')
+            self.groupcolumns = self.groupcond.lower().split(',')
         else:
-            self.groupcolumns = self.groupcond
+            self.groupcolumns = self.groupcond.lower()
 
     def _processhaving(self):
         allowed_op = ['<=', '<', '=', '>', '>=']
@@ -139,29 +139,29 @@ class QuerySetGroupBy:
             if '<=' in self.havcond:
                 self.havop = '<='
                 tmp = self.havcond.split('<=')
-                self.havlval = tmp[0]
-                self.havrval = tmp[1]
+                self.havlval = tmp[0].lower()
+                self.havrval = tmp[1].lower()
             else:
                 self.havop = '<'
                 tmp = self.havcond.split('<')
-                self.havlval = tmp[0]
-                self.havrval = tmp[1]
+                self.havlval = tmp[0].lower()
+                self.havrval = tmp[1].lower()
         elif '>' in self.havcond:
             if '>=' in self.havcond:
                 self.havop = '>='
                 tmp = self.havcond.split('>=')
-                self.havlval = tmp[0]
-                self.havrval = tmp[1]
+                self.havlval = tmp[0].lower()
+                self.havrval = tmp[1].lower()
             else:
                 self.havop = '>'
                 tmp = self.havcond.split('>')
-                self.havlval = tmp[0]
-                self.havrval = tmp[1]
+                self.havlval = tmp[0].lower()
+                self.havrval = tmp[1].lower()
         elif '=' in self.havcond:
             self.havop = '='
             tmp = self.havcond.split('=')
-            self.havlval = tmp[0]
-            self.havrval = tmp[1]
+            self.havlval = tmp[0].lower()
+            self.havrval = tmp[1].lower()
 
     def _comparegrouphav(self):
         if not self.selcolumns[-1] == self.havlval:
@@ -199,16 +199,17 @@ class Parse:
         query_list = self.query.split()
 
         if self._whichTemplate == Template.JOIN:
+            print(query_list)
             if len(query_list) != 10:
                 # print("Error in Join query: Missing arguments")
                 raise ValueError('Query Error: Missing Arguments')
             elif len(query_list) == 10:
-                if not all(item in query_list for item in handles_join):
+                if not all(item.upper() in query_list for item in handles_join):
                     # print('Error in Join query: Missing args')
                     raise ValueError('Query Error: Unstructured Query')
                 else:
-                    fromtable = query_list[3]
-                    jointable = query_list[5]
+                    fromtable = query_list[3].lower()
+                    jointable = query_list[5].lower()
                     oncond = query_list[7]
                     wherecond = query_list[9]
                     parsedQuery = QuerySetJoin(
@@ -218,12 +219,12 @@ class Parse:
                 # print("Error in Groupby query: Missing arguments")
                 raise ValueError('Query Error: Missing Arguments')
             elif len(query_list) == 8:
-                if not all(item in query_list for item in handles_group):
+                if not all(item.upper() in query_list for item in handles_group):
                     # print('Error in Groupby query: Arguments missing')
                     raise ValueError('Query Error: Unstructured Query')
                 else:
                     selectcol = query_list[1]
-                    fromtable = query_list[3]
+                    fromtable = query_list[3].lower()
                     groupcond = query_list[5]
                     havcond = query_list[7]
                     parsedQuery = QuerySetGroupBy(
@@ -235,7 +236,7 @@ class Parse:
         return parsedQuery
 
     def _cleanQuery(self):
-        self.query = self.query.lower().strip()
+        self.query = self.query.strip()
         q_strip = self.query.split()
         clean_q_sp = []
         temp = ""
@@ -250,7 +251,7 @@ class Parse:
                 'Query Error: Does not contain InnerJoin or Groupby keyword')
 
         for i, q_sp in enumerate(q_strip):
-            if q_sp not in match_handles:
+            if q_sp.lower() not in match_handles:
                 temp = temp+q_sp
             else:
                 if temp != "":
