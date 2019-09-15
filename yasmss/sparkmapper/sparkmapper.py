@@ -50,6 +50,11 @@ class SparkJob:
             baseURI+table+table_format, schema=table_schema)
         return table_data
 
+    def _computeaggr(self, df_fromtable, queryset):
+        df_tempg = df_fromtable.groupBy(queryset.groupcolumns)
+        df_tempga = df_tempg.agg({str(queryset.aggcol): str(queryset.aggfunc)})
+        return df_tempga
+
     def startjob(self, queryset, classType):
         if classType == 'QuerySetJoin':
             start_time = time.time()
@@ -64,7 +69,6 @@ class SparkJob:
 
             df_innerjoin = df_fromtabledata.join(
                 df_jointabledata, on=on_l[1], how='inner').orderBy(on_l[1], ascending=True)
-            # print(df_innerjoin.show(30))
 
             wherecol = queryset.wherelval.split('.')[1]
             try:
@@ -74,11 +78,17 @@ class SparkJob:
                 filter_cond = wherecol+queryset.whereop+'"'+queryset.whererval+'"'
             df_finalres = df_innerjoin.where(filter_cond)
             self.queryresult = df_finalres
-            self.trans_actions = ['Join', 'Where']
+            self.trans_actions = ['join', 'where']
             self.exectime = (time.time() - start_time)
-            # print(self.exectime)
-            # print(df_finalres.show())
+
         elif classType == 'QuerySetGroupBy':
-            pass
+            start_time = time.time()
+            df_fromtable = self._getdata(queryset.fromtable)
+            df_agg_groupby = self._computeaggr(df_fromtable, queryset)
+            df_finalres = df_agg_groupby.where(queryset.havcond)
+            self.queryresult = df_finalres
+            self.trans_actions = ['groupby', 'agg', 'where']
+            self.exectime = (time.time() - start_time)
+
         else:
             raise TypeError('Unidentified Class Type')
