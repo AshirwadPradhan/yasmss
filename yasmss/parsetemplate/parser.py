@@ -35,18 +35,18 @@ class QuerySetJoin:
         self._processwherecond()
 
     def _processoncond(self):
-        if '==' not in self.oncond:
+        if '=' not in self.oncond:
             # print('On Condition error')
             raise NotImplementedError(
                 'On clause operator is undefined. Only "==" is allowed')
         else:
-            self.onop = '=='
-            tmp = self.oncond.split('==')
+            self.onop = '='
+            tmp = self.oncond.split('=')
             self.onlval = tmp[0]
             self.onrval = tmp[1]
 
     def _processwherecond(self):
-        allowed_op = ['<=', '<', '==', '>', '>=']
+        allowed_op = ['<=', '<', '=', '>', '>=']
         if not any(x in self.wherecond for x in allowed_op):
             # print('Where Condition error')
             raise NotImplementedError('Where clause operator is undefined')
@@ -72,9 +72,9 @@ class QuerySetJoin:
                 tmp = self.wherecond.split('>')
                 self.wherelval = tmp[0]
                 self.whererval = tmp[1]
-        elif '==' in self.wherecond:
-            self.whereop = '=='
-            tmp = self.wherecond.split('==')
+        elif '=' in self.wherecond:
+            self.whereop = '='
+            tmp = self.wherecond.split('=')
             self.wherelval = tmp[0]
             self.whererval = tmp[1]
 
@@ -131,7 +131,7 @@ class QuerySetGroupBy:
             self.groupcolumns = self.groupcond
 
     def _processhaving(self):
-        allowed_op = ['<=', '<', '==', '>', '>=']
+        allowed_op = ['<=', '<', '=', '>', '>=']
         if not any(x in self.havcond for x in allowed_op):
             # print('Having Condition error')
             raise NotImplementedError('Having clause operator is undefined')
@@ -157,9 +157,9 @@ class QuerySetGroupBy:
                 tmp = self.havcond.split('>')
                 self.havlval = tmp[0]
                 self.havrval = tmp[1]
-        elif '==' in self.havcond:
-            self.havop = '=='
-            tmp = self.havcond.split('==')
+        elif '=' in self.havcond:
+            self.havop = '='
+            tmp = self.havcond.split('=')
             self.havlval = tmp[0]
             self.havrval = tmp[1]
 

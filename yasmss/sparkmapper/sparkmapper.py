@@ -2,8 +2,10 @@
     query template
 """
 from pyspark.sql import SparkSession
-from yasmss.schema import schema
+from schema import schema
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+import pyspark.sql.functions as f
+import time
 
 baseURI = 'hdfs://localhost:9000/user/dominoUzu/input/'
 table_format = '.csv'
@@ -50,18 +52,33 @@ class SparkJob:
 
     def startjob(self, queryset, classType):
         if classType == 'QuerySetJoin':
+            start_time = time.time()
             df_fromtabledata = self._getdata(queryset.fromtable)
             df_jointabledata = self._getdata(queryset.jointable)
-            print(df_fromtabledata.show())
-            print(df_jointabledata.show())
+
             on_l = queryset.onlval.split('.')
             on_r = queryset.onrval.split('.')
             if on_l[1] != on_r[1]:
-                print('Error in attribute')
-                return
-            joined_rdd = df_fromtabledata.join(
-                df_jointabledata, on=on_l[1], how='inner').orderby(on_l[1], ascending='True')
+                raise AttributeError(
+                    'Lval and Rval of "On" condition does not match')
+
+            df_innerjoin = df_fromtabledata.join(
+                df_jointabledata, on=on_l[1], how='inner').orderBy(on_l[1], ascending=True)
+            # print(df_innerjoin.show(30))
+
+            wherecol = queryset.wherelval.split('.')[1]
+            try:
+                con_whererval = int(queryset.whererval)
+                filter_cond = wherecol+queryset.whereop+queryset.whererval
+            except ValueError:
+                filter_cond = wherecol+queryset.whereop+'"'+queryset.whererval+'"'
+            df_finalres = df_innerjoin.where(filter_cond)
+            self.queryresult = df_finalres
+            self.trans_actions = ['Join', 'Where']
+            self.exectime = (time.time() - start_time)
+            # print(self.exectime)
+            # print(df_finalres.show())
         elif classType == 'QuerySetGroupBy':
             pass
         else:
-            print('Unknown class Error')
+            raise TypeError('Unidentified Class Type')
