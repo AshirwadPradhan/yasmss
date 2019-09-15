@@ -5,6 +5,9 @@ from sparkmapper import sparkmapper
 
 
 class RunQuery:
+    """Initialize the MR and Spark jobs
+    """
+
     def __init__(self, parsedQuery):
         self.parsedQuery = parsedQuery
 
@@ -23,6 +26,6 @@ class RunQuery:
 
     def run(self, runMR=True, runSpark=True):
         if runMR:
-            self._initiateMRjob
+            self._initiateMRjob()
         if runSpark:
             self._initiateSparkJob()
