@@ -11,7 +11,7 @@ def test_join_normal():
     assert q_res.onrval == 'user.zip'
     assert q_res.whereop == '='
     assert q_res.wherelval == 'zipcode.city'
-    assert q_res.whererval == 'pilani'
+    assert q_res.whererval == 'PILANI'
 
 
 def test_join_case1():
@@ -23,7 +23,7 @@ def test_join_case1():
     assert q_res.onrval == 'zipcode.zip'
     assert q_res.whereop == '='
     assert q_res.wherelval == 'user.city'
-    assert q_res.whererval == 'pilani'
+    assert q_res.whererval == 'PILANI'
 
 
 def test_join_case2():
@@ -35,7 +35,7 @@ def test_join_case2():
     assert q_res.onrval == 'user.zip'
     assert q_res.whereop == '='
     assert q_res.wherelval == 'user.city'
-    assert q_res.whererval == 'pilani'
+    assert q_res.whererval == 'PILANI'
 
 
 def test_join_case3():
@@ -47,7 +47,7 @@ def test_join_case3():
     assert q_res.onrval == 'user.zip'
     assert q_res.whereop == '<'
     assert q_res.wherelval == 'zipcode.city'
-    assert q_res.whererval == 'pilani'
+    assert q_res.whererval == 'PILANI'
 
 
 def test_join_case3_F():
@@ -59,7 +59,7 @@ def test_join_case3_F():
     assert q_res.onrval == 'user.zip'
     assert q_res.whereop == '='
     assert q_res.wherelval != 'user.city'
-    assert q_res.whererval == 'pilani'
+    assert q_res.whererval == 'PILANI'
 
 
 def test_join_case4():

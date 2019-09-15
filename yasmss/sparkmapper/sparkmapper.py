@@ -1,11 +1,13 @@
 """Get the parsed query from the driver and apply transformation and action based on the
     query template
 """
-from pyspark.sql import SparkSession
-from schema import schema
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType
-import pyspark.sql.functions as f
 import time
+
+import pyspark.sql.functions as f
+from pyspark.sql import SparkSession
+from pyspark.sql.types import IntegerType, StringType, StructField, StructType
+
+from schema import schema
 
 baseURI = 'hdfs://localhost:9000/user/dominoUzu/input/'
 table_format = '.csv'
@@ -19,10 +21,11 @@ class SparkJob:
         self.queryresult = None
         self.trans_actions = None
         self.exectime = None
+        self.classType = None
 
     def _prepareEnv(self):
         spark = SparkSession.builder.master(
-            'local').appName('example').getOrCreate()
+            'local').appName('master_job').getOrCreate()
         return spark
 
     def _getKeyType(self, keyType):
@@ -56,7 +59,11 @@ class SparkJob:
         return df_tempga
 
     def startjob(self, queryset, classType):
+
+        self.classType = classType
+
         if classType == 'QuerySetJoin':
+
             start_time = time.time()
             df_fromtabledata = self._getdata(queryset.fromtable)
             df_jointabledata = self._getdata(queryset.jointable)
@@ -77,18 +84,26 @@ class SparkJob:
             except ValueError:
                 filter_cond = wherecol+queryset.whereop+'"'+queryset.whererval+'"'
             df_finalres = df_innerjoin.where(filter_cond)
+
+            self.exectime = (time.time() - start_time)
             self.queryresult = df_finalres
             self.trans_actions = ['join', 'where']
-            self.exectime = (time.time() - start_time)
+
+            return self
 
         elif classType == 'QuerySetGroupBy':
+
             start_time = time.time()
             df_fromtable = self._getdata(queryset.fromtable)
             df_agg_groupby = self._computeaggr(df_fromtable, queryset)
             df_finalres = df_agg_groupby.where(queryset.havcond)
+
+            self.exectime = (time.time() - start_time)
             self.queryresult = df_finalres
             self.trans_actions = ['groupby', 'agg', 'where']
-            self.exectime = (time.time() - start_time)
+
+            return self
 
         else:
             raise TypeError('Unidentified Class Type')
+            return None
