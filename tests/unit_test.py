@@ -58,7 +58,7 @@ def test_join_case3_F():
     assert q_res.onlval == 'zipcode.zip'
     assert q_res.onrval == 'user.zip'
     assert q_res.whereop == '=='
-    assert q_res.wherelval == 'user.city'
+    assert q_res.wherelval != 'user.city'
     assert q_res.whererval == 'pilani'
 
 
@@ -76,6 +76,30 @@ def test_join_case4():
 
 def test_join_case5():
     query = 'SELECT * FROM MOVIES INNERJOIN RATING ON MOVIEs.MOVIEID == RATING.MOVIEID WHERE MOVIE.ACTION > 1'
+    q_res = Parse().parseQuery(query=query)
+    assert q_res.fromtable == 'movies'
+    assert q_res.onop == '=='
+    assert q_res.onlval == 'movies.movieid'
+    assert q_res.onrval == 'rating.movieid'
+    assert q_res.whereop == '>'
+    assert q_res.wherelval == 'movie.action'
+    assert q_res.whererval == '1'
+
+
+def test_join_space1():
+    query = ' SELECT   *  FROM   MOVIES   INNERJOIN  RATING  ON    MOVIEs.MOVIEID ==  RATING.MOVIEID WHERE MOVIE.ACTION  > 1'
+    q_res = Parse().parseQuery(query=query)
+    assert q_res.fromtable == 'movies'
+    assert q_res.onop == '=='
+    assert q_res.onlval == 'movies.movieid'
+    assert q_res.onrval == 'rating.movieid'
+    assert q_res.whereop == '>'
+    assert q_res.wherelval == 'movie.action'
+    assert q_res.whererval == '1'
+
+
+def test_join_space2():
+    query = 'SELECT * FROM MOVIES INNERJOIN RATING ON MOVIEs. MOVIEID ==  RATING  .  MOVIEID WHERE MOVIE .  ACTION  > 1'
     q_res = Parse().parseQuery(query=query)
     assert q_res.fromtable == 'movies'
     assert q_res.onop == '=='
