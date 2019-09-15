@@ -51,7 +51,7 @@ def test_join_case3():
 
 
 def test_join_case3_F():
-    query = 'SELECT * FROM USER INNERJOIN ZIPCODE ON ZIPCODE.ZIP = USER.ZIP WHERE ZIPCODE.CITY = PILANI'
+    query = 'SELECT * FROM USER INNERJOIN ZIPCODE ON ZIPCODE.ZIP = USER.ZIP WHERE ZIPCODE.CITY == PILANI'
     q_res = Parse().parseQuery(query=query)
     assert q_res.fromtable == 'user'
     assert q_res.onop == '='
