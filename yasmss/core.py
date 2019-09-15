@@ -1,8 +1,9 @@
-from yasmss.parsetemplate import parser
-from yasmss.driver import driver
+from parsetemplate import parser
+from driver import driver
 
 
-query = 'SELECT * FROM USERS INNERJOIN ZIPCODES ON USERS.ZIPCODE == ZICODES.ZIPCODE WHERE ZIPCODES.CITY == PILANI'
+query = 'SELECT * FROM USERS INNERJOIN ZIPCODES ON USERS.ZIPCODE = ZICODES.ZIPCODE WHERE ZIPCODES.CITY = NYACK'
 parsedq = parser.Parse()
 parsedQuery = parsedq.parseQuery(query)
 driveq = driver.RunQuery(parsedQuery)
+driveq.run()
