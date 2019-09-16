@@ -53,8 +53,4 @@ class MRJob:
             mrout = res.get_result()
             mrresult = {'mrout': mrout, 'Time taken': time_delta}
             return mrresult
-            
 
-    def get_output_path(self):
-        d = {'path': self.output }
-        return d 
