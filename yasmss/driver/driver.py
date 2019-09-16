@@ -13,7 +13,7 @@ class RunQuery:
 
         self.parsedQuery = parsedQuery
         self.sparkOutput = None
-        self.mroutput = None
+        self.mrOutput = None
 
     def _initiateSparkJob(self):
 
