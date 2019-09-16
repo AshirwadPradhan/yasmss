@@ -29,42 +29,30 @@ class Reducer:
 
 
     def get_sum(self):
-        print(self.clause, self.having, self.agg_operation, self.threshold_val)
         for k, v in self.res.items():
-            if not self.having:
-                print("{}\t{}".format(k, sum(v)))
-            else:
-                temp = [i for i in v if self.clauses[self.clause](i, self.threshold_val)]
-                if len(temp):
-                    print("{}\t{}".format(k, sum(temp)))
+            val_sum = sum(v)
+            if self.clauses[self.clause](val_sum, self.threshold_val):
+                print("{}\t{}".format(k, val_sum))
 
 
     def get_min(self):
         for k, v in self.res.items():
-            if not self.having:
-                print("{} \t {}".format(k, min(v)))
-            else:
-                temp = [i for i in v if self.clauses[self.clause](i, self.threshold_val)]
-                if len(temp):
-                    print("{}\t{}".format(k, min(temp)))
+            val_min = min(v)
+            if self.clauses[self.clause](val_min, self.threshold_val):
+                print("{} \t {}".format(k, val_min))
+
             
     def get_max(self):
         for k, v in self.res.items():
-            if not self.having:
-                print(k, max(v))
-            else:
-                temp = [i for i in v if self.clauses[self.clause](i, self.threshold_val)]
-                if len(temp):
-                    print("{}\t{}".format(k, max(i for i in v if self.clauses[self.clause](i, self.threshold_val))))
+            val_max = max(v)
+            if self.clauses[self.clause](val_max, self.threshold_val):
+                print("{} \t {}".format(k, val_max))
 
     def count(self):
         for k, v in self.res.items():
-            if not self.having:
-                print(k, len(v))
-            else:
-                temp = [i for i in v if self.clauses[self.clause](i, self.threshold_val)]
-                if len(temp):
-                    print("{}\t{}".format(k, len(temp)))
+            val_len = len(v)
+            if self.clauses[self.clause](val_len, self.threshold_val):
+                print("{} \t {}".format(k, val_len))
 
 
 
@@ -94,5 +82,3 @@ if __name__ == "__main__":
         red.count()
     else:
         print("Invalid operation")
-    # mrr = groupby_result.MrResult()
-    # mrr.groupby_res()

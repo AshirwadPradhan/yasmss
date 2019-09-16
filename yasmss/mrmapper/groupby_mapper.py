@@ -39,9 +39,5 @@ if __name__ == '__main__':
     
     mapr.sel_col_indexes = conf['sel_col_indexes']
     mapr.agg_col_index = conf['agg_index']
-    # from core import parsedQuery
-    # from parsetemplate import parser
-    # from schema import schema
-    # mapr.getdata(parsedQuery)
     mapr.startjob()
 

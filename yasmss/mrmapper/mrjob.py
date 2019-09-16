@@ -3,7 +3,6 @@ from mrmapper import groupby_mapper
 from schema import schema
 import yaml
 import time
-import pprint
 
 
 class MRJob:
@@ -14,21 +13,13 @@ class MRJob:
         self.input = "test"
         self.output = "test"
         self.table = "rating"
-        # self.basepath = "hdfs://localhost:9000/"
-
-    # @staticmethod
-    # def get_outputpath(g_type = None):
-    #     if g_type == 'generate':
-    #         count = count + 1
-    #     return str(count)
 
 
     def start_mrjob(self, queryset, classtype):
-        if classtype == 'QuerySetJoin':
+        if classtype == 'QuerySetGroupBy':
             conf = {}
             
             table_schema_keys = list(schema.Schema().getSchemaDict(table=queryset.fromtable).keys())
-            # import pdb; pdb.set_trace()
             selcols = queryset.selcolumns[:len(queryset.selcolumns)-1]
             sel_col_indexes = []
             for i in selcols:
@@ -52,25 +43,18 @@ class MRJob:
                             output= self.output, table = self.table)
             command = 'hadoop jar /usr/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar -mapper "python mrmapper/groupby_mapper.py" -reducer "python mrmapper/groupby_reducer.py" -input /test/rating.csv -output /test/output_gx2'
             
-
             start= time.time()
             os.system(command)
-
             
-            print("Time taken : " + str(time.time() - start))
+            time_delta = time.time() - start
             
             from mrresult import groupby_result
-            res = groupby_result.MrResult()
-            
-            pprint.pprint(res.get_result())
+            res = groupby_result.MrResult(queryset)
+            mrout = res.get_result()
+            mrresult = {'mrout': mrout, 'Time taken': time_delta}
+            return mrresult
             
 
-            # with open("/home/shash/Documents/yasmss1/yasmss/config.yaml", 'r') as file:
-            #     conf = yaml.load(file, Loader=yaml.FullLoader)
-            #     # print(conf)
-            
-    
-    
     def get_output_path(self):
         d = {'path': self.output }
         return d 

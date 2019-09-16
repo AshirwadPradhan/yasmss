@@ -10,7 +10,6 @@ query = ""
 ps = reqparse.RequestParser()
 ps.add_argument('query')
 
-
 class Home(Resource):
     def get(self):
         # Send the index Page as a response
@@ -29,9 +28,8 @@ class RunQuery(Resource):
         driveq = driver.RunQuery(parsedQuery)
         runquery_op = driveq.run()
         # json_runq = jsonizer.covrtJSon(runquery_op)
-        resp_d = {'result': runquery_op}
+        resp_d = {'MRresult': runquery_op.mrOutput, 'SparkResult': runquery_op.sparkOutput}
         return resp_d, 201
-
 
 api.add_resource(Home, '/', '/index', '/home')
 api.add_resource(RunQuery, '/query')
