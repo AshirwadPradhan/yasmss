@@ -108,3 +108,15 @@ def test_join_space2():
     assert q_res.whereop == '>'
     assert q_res.wherelval == 'movie.action'
     assert q_res.whererval == '1'
+
+
+def test_join_wherespace():
+    query = 'SELECT * FROM USERS INNERJOIN ZIPCODES ON USERS.ZIPCODE = ZIPCODES.ZIPCODE WHERE ZIPCODES.CITY = NEW YORK'
+    q_res = Parse().parseQuery(query=query)
+    assert q_res.fromtable == 'users'
+    assert q_res.onop == '='
+    assert q_res.onlval == 'users.zipcode'
+    assert q_res.onrval == 'zipcodes.zipcode'
+    assert q_res.whereop != '>'
+    assert q_res.wherelval == 'zipcodes.city'
+    assert q_res.whererval == 'NEW YORK'
