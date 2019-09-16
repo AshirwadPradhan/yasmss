@@ -1,0 +1,9 @@
+agg_index: 2
+havlval: min
+havop: <
+havrval: '4'
+input: None
+output: None
+sel_col_indexes:
+- 1
+table: ratings
