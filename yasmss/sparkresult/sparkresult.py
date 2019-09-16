@@ -25,5 +25,5 @@ class SparkJSON:
         self._finaldict = res
         self.exectime = sparkjob_op.exectime
         self.trans_actions = sparkjob_op.trans_actions
-        data = json.dumps(self, default=self._convertToDict, indent=4)
+        data = json.dumps(self, default=self._convertToDict)
         return data
