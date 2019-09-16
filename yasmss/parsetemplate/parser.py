@@ -20,7 +20,7 @@ class QuerySetJoin:
     """Class to carry query data after parsing JOIN template
     """
 
-    def __init__(self, fromtable, jointable, oncond, wherecond):
+    def __init__(self, fromtable, jointable, oncond, wherecond, whererval):
         self.fromtable = fromtable
         self.jointable = jointable
         self.oncond = oncond
@@ -30,7 +30,7 @@ class QuerySetJoin:
         self.wherecond = wherecond
         self.whereop = None
         self.wherelval = None
-        self.whererval = None
+        self.whererval = whererval
         self._processoncond()
         self._processwherecond()
 
@@ -55,28 +55,28 @@ class QuerySetJoin:
                 self.whereop = '<='
                 tmp = self.wherecond.split('<=')
                 self.wherelval = tmp[0].lower()
-                self.whererval = tmp[1]
+                # self.whererval = whererval
             else:
                 self.whereop = '<'
                 tmp = self.wherecond.split('<')
                 self.wherelval = tmp[0].lower()
-                self.whererval = tmp[1]
+                # self.whererval = whererval
         elif '>' in self.wherecond:
             if '>=' in self.wherecond:
                 self.whereop = '>='
                 tmp = self.wherecond.split('>=')
                 self.wherelval = tmp[0].lower()
-                self.whererval = tmp[1]
+                # self.whererval = whererval
             else:
                 self.whereop = '>'
                 tmp = self.wherecond.split('>')
                 self.wherelval = tmp[0].lower()
-                self.whererval = tmp[1]
+                # self.whererval = whererval
         elif '=' in self.wherecond:
             self.whereop = '='
             tmp = self.wherecond.split('=')
             self.wherelval = tmp[0].lower()
-            self.whererval = tmp[1]
+            # self.whererval = whererval
 
     def getdata(self):
         return self
@@ -188,11 +188,23 @@ class Parse:
         self._whichTemplate = Template.JOIN
         self.query = ""
 
+    def _getWhereRval(self, tmpQuery):
+        wRval = ""
+        tmpQuery = tmpQuery[::-1]
+        for c in tmpQuery:
+            if c.isalnum() or c.isspace():
+                wRval = wRval + c
+            else:
+                break
+        wRval = wRval[::-1].strip()
+        return wRval
+
     def parseQuery(self, query):
         """Parse the string query into QuerySetJoin or QuerySetGroupBy depending on the
             template of the query
         """
         self.query = query
+        tmpQuery = query
         self._decideTemplate()
         self._cleanQuery()
         parsedQuery = None
@@ -211,8 +223,9 @@ class Parse:
                     jointable = query_list[5].lower()
                     oncond = query_list[7]
                     wherecond = query_list[9]
+                    whererval = self._getWhereRval(tmpQuery)
                     parsedQuery = QuerySetJoin(
-                        fromtable, jointable, oncond, wherecond)
+                        fromtable, jointable, oncond, wherecond, whererval)
         elif self._whichTemplate == Template.GROUPBY:
             if len(query_list) != 8:
                 # print("Error in Groupby query: Missing arguments")
