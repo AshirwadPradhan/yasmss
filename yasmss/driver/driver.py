@@ -3,7 +3,7 @@
 from parsetemplate import parser
 from sparkmapper import sparkmapper
 from sparkresult import sparkresult
-
+from mrmapper import mrjob
 
 class RunQuery:
     """Initialize the MR and Spark jobs
@@ -34,12 +34,23 @@ class RunQuery:
             return None
 
     def _initiateMRjob(self):
-        pass
+        if isinstance(self.parsedQuery, parser.QuerySetJoin):
+            # mrj = groupby_mapper.Mapper()
+            # mrj.startjob(self.parsedQuery, 'QuerySetJoin')
+            pass
+        elif isinstance(self.parsedQuery, parser.QuerySetGroupBy):
+            mrj = mrjob.MRJob()
+            mrres = mrj.start_mrjob(self.parsedQuery, 'QuerySetGroupBy')
+            print(mrres)
+            return mrres
+        else:
+            raise TypeError('Unidentified Class Type in MapReduce')
 
     def run(self, runMR=True, runSpark=True):
         if runMR:
-            self._initiateMRjob()
+            mrjob_output = self._initiateMRjob()
+            self.mrOutput = mrjob_output
         if runSpark:
             sparkjob_op = self._initiateSparkJob()
             self.sparkOutput = sparkresult.SparkJSON().covertToJSON(sparkjob_op)
-            return self
+        return self

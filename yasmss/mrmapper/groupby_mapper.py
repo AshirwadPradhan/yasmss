@@ -9,15 +9,7 @@ class Mapper:
         self.sel_col_indexes = []
         self.agg_col_index = None
 
-
-    def getdata(self, queryset):
-        table_schema_keys = list(schema.Schema().getSchemaDict(table=queryset.fromtable).keys())
-        self.sel_col_indexes = [table_schema_keys.index('%s'%col for col in queryset.selcolumns)]
-        self.agg_indexes = table_schema_keys.index(queryset.aggcol)
-        
-
     def startjob(self):
-        start_time = time.time()
         for line in sys.stdin:
             line = line.strip()
             line = line.split(',')
@@ -39,9 +31,5 @@ if __name__ == '__main__':
     
     mapr.sel_col_indexes = conf['sel_col_indexes']
     mapr.agg_col_index = conf['agg_index']
-    # from core import parsedQuery
-    # from parsetemplate import parser
-    # from schema import schema
-    # mapr.getdata(parsedQuery)
     mapr.startjob()
 

@@ -1,7 +1,7 @@
 agg_index: 2
-havlval: min
-havop: <
-havrval: '4'
+havlval: sum
+havop: '>'
+havrval: '100'
 input: None
 output: None
 sel_col_indexes:
