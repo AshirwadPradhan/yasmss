@@ -12,6 +12,8 @@ import yaml
 import time
 
 
+
+
 class MRJob:
     def __init__(self):
         self.hadoop_streaming = "/usr/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar"
