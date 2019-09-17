@@ -1,3 +1,6 @@
+"""
+    returns the the MR result stored in HDFS directory, maps it to columns names and transforms it into an array of dict.
+"""
 import subprocess
 import os
 

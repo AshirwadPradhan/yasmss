@@ -1,3 +1,10 @@
+"""
+    This module Drives the MR activity. Takes the query parameters from the driver and runs the map and reduce
+    jobs accordingly. These query parameters(config/conf) are stored in a yaml so that the independant map and reduce jobs
+    can access it(as Import wasnt working in mapreduce).
+    Gets the exit code for MR and mrresult, calculates the time taken and returns the result and time to the driver.
+"""
+
 import os
 from mrmapper import groupby_mapper
 from schema import schema
