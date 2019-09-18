@@ -1,25 +1,27 @@
+"""
+    returns the the MR result stored in HDFS directory, maps it to columns names and transforms it into an array of dict.
+"""
 import subprocess
-from core import parsedQuery
 import os
 
-
 class MrResult:
-    def __init__(self):
+    def __init__(self,queryset):
         self.output = "hdfs://localhost:9000/test/output_gx2/part-00000"
         self.json_result = []
         self.col_names = []
+        self.queryset = queryset
 
     def _get_col_names(self):
-        selcols = parsedQuery.selcolumns[:len(parsedQuery.selcolumns)-1]
-        selcols.append(parsedQuery.aggcol)
+        selcols = self.queryset.selcolumns[:len(self.queryset.selcolumns)-1]
+        selcols.append(self.queryset.aggcol)
         return selcols
 
     def _groupby_res(self):
         self.col_names = self._get_col_names()
-        print(self.col_names)
         cat = subprocess.Popen(["hadoop", "fs", "-cat", self.output], stdout=subprocess.PIPE)
         for line in cat.stdout:
-            self.json_result.append(dict(zip(self.col_names, line.decode('utf-8').split('\n')[0].split('\t'))))
+            self.json_result.append(dict(zip(self.col_names, line.decode('utf-8').split('\n')[0].replace(",", "\t").split('\t'))))
+            # t = dict(zip(self.[col_names], line.decode('utf-8').split('\n')[0].split('\t')))
         self._cleanup()
 
     def _cleanup(self):
