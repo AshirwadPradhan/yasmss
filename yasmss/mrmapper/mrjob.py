@@ -14,41 +14,48 @@ import time
 
 class MRJob:
     def __init__(self):
-        self.hadoop_streaming = "/usr/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar"
+        self.hadoop_streaming_jar = None
         self.mapper = "groupby_mapper"
         self.reducer = "groupby_reducer"
-        self.input = "test"
-        self.output = "test"
-        self.table = "rating"
+        self.input = None
+        self.output = None
+        self.table = None
+
+
+    def _get_set_config(self, queryset, sel_col_indexes, agg_index):
+        conf = {}
+        with open("config.yaml", 'r') as file:
+            conf = yaml.load(file, Loader=yaml.FullLoader)
+
+        self.input = conf['pathconfig']['input']
+        self.output = conf['pathconfig']['output']
+        self.hadoop_streaming_jar = conf['pathconfig']['hadoop_streaming_jar']
+        self.outputdir = conf['pathconfig']['outputdir']
+
+        conf['sel_col_indexes'] = sel_col_indexes
+        conf['agg_index'] = agg_index
+        conf['havop'] = queryset.havop
+        conf['havrval'] = queryset.havrval
+        conf['havlval'] = queryset.havlval.split('(')[0]
+
+        with open("config.yaml", 'w') as target:
+            yaml.dump(conf, target)
 
 
     def start_mrjob(self, queryset, classtype):
         if classtype == 'QuerySetGroupBy':
-            conf = {}
-            
             table_schema_keys = list(schema.Schema().getSchemaDict(table=queryset.fromtable).keys())
             selcols = queryset.selcolumns[:len(queryset.selcolumns)-1]
             sel_col_indexes = []
+
             for i in selcols:
                 sel_col_indexes.append(table_schema_keys.index(i))
             agg_index = table_schema_keys.index(queryset.aggcol)
             
-            with open("config.yaml", 'r') as file:
-                conf = yaml.load(file, Loader=yaml.FullLoader)
-            conf['sel_col_indexes'] = sel_col_indexes
-            conf['agg_index'] = agg_index
-            conf['havop'] = queryset.havop
-            conf['havrval'] = queryset.havrval
-            conf['havlval'] = queryset.havlval.split('(')[0]
-
-            with open("config.yaml", 'w') as target:
-                yaml.dump(conf, target)
+            self._get_set_config(queryset, sel_col_indexes, agg_index)
             
-            
-            command = """ hadoop jar {jar} -mapper "python {mapper}.py" -reducer "python {reducer}.py" -input /{input}/{table}.csv -output /{output}/output""".format(
-                            jar=self.hadoop_streaming, mapper=self.mapper, reducer = self.reducer, input =self.input,
-                            output= self.output, table = self.table)
-            command = 'hadoop jar /usr/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar -mapper "python mrmapper/groupby_mapper.py" -reducer "python mrmapper/groupby_reducer.py" -input /test/rating.csv -output /test/output_gx2'
+            command = 'hadoop jar {hadoop_streaming_jar} -mapper "python mrmapper/groupby_mapper.py" -reducer "python mrmapper/groupby_reducer.py" -input /{input}/{table}.csv -output /{output}/{outputdir}'.format(
+                            table=queryset.fromtable, input=self.input, output=self.output, hadoop_streaming_jar=self.hadoop_streaming_jar, outputdir=self.outputdir)
             
             start= time.time()
             os.system(command)
