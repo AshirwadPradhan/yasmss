@@ -1,10 +1,11 @@
 agg_index: 1
-hadoop_streaming_jar: /usr/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar
 havlval: min
 havop: '>'
 havrval: '25'
-input: test
-output: test
-outputdir: op
+pathconfig:
+  hadoop_streaming_jar: /usr/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar
+  input: test
+  output: test
+  outputdir: op
 sel_col_indexes:
 - 0

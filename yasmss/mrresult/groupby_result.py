@@ -19,8 +19,8 @@ class MrResult:
         conf = {}
         with open("config.yaml", 'r') as file:
             conf = yaml.load(file, Loader=yaml.FullLoader)
-        self.outputpath = conf['output']
-        self.outputdir = conf['outputdir']
+        self.outputpath = conf['pathconfig']['output']
+        self.outputdir = conf['pathconfig']['outputdir']
         return "hdfs://localhost:9000/{path}/{outputdir}/{outputfile}".format(
                 path=self.outputpath, outputdir=self.outputdir, outputfile=self.opfile)
 

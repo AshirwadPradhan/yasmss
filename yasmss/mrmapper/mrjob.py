@@ -27,10 +27,10 @@ class MRJob:
         with open("config.yaml", 'r') as file:
             conf = yaml.load(file, Loader=yaml.FullLoader)
 
-        self.input = conf['input']
-        self.output = conf['output']
-        self.hadoop_streaming_jar = conf['hadoop_streaming_jar']
-        self.outputdir = conf['outputdir']
+        self.input = conf['pathconfig']['input']
+        self.output = conf['pathconfig']['output']
+        self.hadoop_streaming_jar = conf['pathconfig']['hadoop_streaming_jar']
+        self.outputdir = conf['pathconfig']['outputdir']
 
         conf['sel_col_indexes'] = sel_col_indexes
         conf['agg_index'] = agg_index
