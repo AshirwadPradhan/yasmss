@@ -1,9 +1,11 @@
-agg_index: 2
-havlval: sum
+agg_index: 1
+havlval: min
 havop: '>'
-havrval: '100'
-input: None
-output: None
+havrval: '25'
+pathconfig:
+  hadoop_streaming_jar: /usr/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar
+  input: test
+  output: test
+  outputdir: op
 sel_col_indexes:
-- 1
-table: ratings
+- 0

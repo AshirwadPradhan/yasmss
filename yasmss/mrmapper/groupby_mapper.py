@@ -15,7 +15,7 @@ class Mapper:
             line = line.split(',')
 
             sel_cols = [line[x] for x in self.sel_col_indexes]
-            agg_cols = self.agg_col_index
+            agg_cols = line[self.agg_col_index]
 
             print("{}\t{}".format(",".join(sel_cols), agg_cols))
 
