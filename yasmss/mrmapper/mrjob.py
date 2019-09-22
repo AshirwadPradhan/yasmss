@@ -53,6 +53,16 @@ class MRJob:
             index = table_schema_keys.index(wherecol)
         return index
 
+
+    def _get_col_len(self, table):
+        tab_len = None
+        if table == 1:
+            tab_len = len(list(schema.Schema().getSchemaDict(table=self.table1).keys()))
+        else:
+            tab_len = len(list(schema.Schema().getSchemaDict(table=self.table2).keys()))
+        return tab_len
+
+
     def start_mrjob(self, queryset, classtype):
         if classtype == 'QuerySetGroupBy':
             table_schema_keys = list(schema.Schema().getSchemaDict(table=queryset.fromtable).keys())
@@ -112,6 +122,8 @@ class MRJob:
             conf['joinconfig']['table1'] = self.table1
             conf['joinconfig']['table2'] = self.table2
             conf['joinconfig']['wheretable'] = 1 if wheretable == self.table1 else 2
+            conf['joinconfig']['table1_len'] = self._get_col_len(1)
+            conf['joinconfig']['table2_len'] = self._get_col_len(2)
 
             with open("config.yaml", 'w') as target:
                 yaml.dump(conf, target)
