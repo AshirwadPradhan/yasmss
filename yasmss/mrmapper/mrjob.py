@@ -75,7 +75,7 @@ class MRJob:
             
             self._get_set_config(queryset, sel_col_indexes, agg_index)
             
-            command = 'mapred streaming -mapper "python mrmapper/groupby_mapper.py" -reducer "python mrmapper/groupby_reducer.py" -input /{input}/{table}.csv -output /{parent}/{outputdir}'.format(
+            command = 'hadoop jar {hadoop_streaming_jar} -mapper "python mrmapper/groupby_mapper.py" -reducer "python mrmapper/groupby_reducer.py" -input /{input}/{table}.csv -output /{parent}/{outputdir}'.format(
                             table=queryset.fromtable, input=self.input, parent=self.parentdir, hadoop_streaming_jar=self.hadoop_streaming_jar, outputdir=self.outputdir)
             
             start= time.time()
@@ -114,6 +114,7 @@ class MRJob:
             self.input = conf['pathconfig']['input_dir']
             self.parentdir = conf['pathconfig']['parent_output_dir']
             self.outputdir = conf['pathconfig']['child_output_dir']
+            self.hadoop_streaming_jar = conf['pathconfig']['hadoop_streaming_jar']
 
             conf['joinconfig']['join_col_index'] = join_col_index
             conf['joinconfig']['wherelval'] = wherelval_index
@@ -128,8 +129,8 @@ class MRJob:
             with open("config.yaml", 'w') as target:
                 yaml.dump(conf, target)
 
-            command = 'mapred streaming -mapper "python mrmapper/join_mapper.py" -reducer "python mrmapper/join_reducer.py" -input /{input}/{table1}.csv -input /{input}/{table2}.csv -output /{parentdir}/{output}'.format(
-                input=self.input, parentdir=self.parentdir, output=self.outputdir, table1=self.table1, table2=self.table2)
+            command = 'hadoop jar {hadoop_streaming_jar} -mapper "python mrmapper/join_mapper.py" -reducer "python mrmapper/join_reducer.py" -input /{input}/{table1}.csv -input /{input}/{table2}.csv -output /{parentdir}/{output}'.format(
+                input=self.input, hadoop_streaming_jar=self.hadoop_streaming_jar, parentdir=self.parentdir, output=self.outputdir, table1=self.table1, table2=self.table2)
 
             start= time.time()
             os.system(command)

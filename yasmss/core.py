@@ -18,7 +18,6 @@ class RunQuery(Resource):
     def post(self):
         args = ps.parse_args()
         query = args['query']
-        print(query)
         try:
             parsedq = parser.Parse()
             parsedQuery = parsedq.parseQuery(query.upper())
@@ -36,15 +35,14 @@ class RunQuery(Resource):
             return {"Err:": "Error from parser"}, 400
 
         try:
-            print(parsedQuery)
             driveq = driver.RunQuery(parsedQuery)
             runquery_op = driveq.run()
         except TypeError as e:
             print(e)
             return {"Err:": e}, 400
-        # except Exception as e:
-        #     print(e)
-        #     return {"Err:": "Error from driver"}, 400
+        except Exception as e:
+            print(e)
+            return {"Err:": "Error from driver"}, 400
         resp_d = {'MRresult': runquery_op.mrOutput,
                   'SparkResult': runquery_op.sparkOutput}
         return resp_d, 201
