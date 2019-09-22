@@ -3,20 +3,20 @@ havlval: sum
 havop: '>'
 havrval: '1000'
 joinconfig:
-  join_col_index: 0
-  table1: zipcodes
-  table1_len: 4
-  table2: users
-  table2_len: 5
-  wherelval: 1
-  whereop: <
-  whererval: '49'
+  join_col_index: 4
+  table1: users
+  table1_len: 5
+  table2: zipcodes
+  table2_len: 4
+  wherelval: 2
+  whereop: '='
+  whererval: NEW YORK
   wheretable: 2
 pathconfig:
-  host_ip_port : hdfs://localhost:9000
-  hadoop_streaming_jar: /usr/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar
+  child_output_dir: op
+  hadoop_streaming_jar: /usr/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar
+  host_ip_port: hdfs://localhost:9000
   input_dir: test/input/
   parent_output_dir: test
-  child_output_dir: op
 sel_col_indexes:
 - 1

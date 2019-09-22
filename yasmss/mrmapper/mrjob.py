@@ -29,10 +29,10 @@ class MRJob:
         with open("config.yaml", 'r') as file:
             conf = yaml.load(file, Loader=yaml.FullLoader)
 
-        self.input = conf['pathconfig']['input']
-        self.parentdir = conf['pathconfig']['parentdir']
+        self.input = conf['pathconfig']['input_dir']
+        self.parentdir = conf['pathconfig']['parent_output_dir']
         self.hadoop_streaming_jar = conf['pathconfig']['hadoop_streaming_jar']
-        self.outputdir = conf['pathconfig']['outputdir']
+        self.outputdir = conf['pathconfig']['child_output_dir']
 
         conf['sel_col_indexes'] = sel_col_indexes
         conf['agg_index'] = agg_index
@@ -75,7 +75,7 @@ class MRJob:
             
             self._get_set_config(queryset, sel_col_indexes, agg_index)
             
-            command = 'hadoop jar {hadoop_streaming_jar} -mapper "python mrmapper/groupby_mapper.py" -reducer "python mrmapper/groupby_reducer.py" -input /{input}/{table}.csv -output /{parent}/{outputdir}'.format(
+            command = 'mapred streaming -mapper "python mrmapper/groupby_mapper.py" -reducer "python mrmapper/groupby_reducer.py" -input /{input}/{table}.csv -output /{parent}/{outputdir}'.format(
                             table=queryset.fromtable, input=self.input, parent=self.parentdir, hadoop_streaming_jar=self.hadoop_streaming_jar, outputdir=self.outputdir)
             
             start= time.time()
@@ -111,9 +111,9 @@ class MRJob:
             with open("config.yaml", 'r') as file:
                 conf = yaml.load(file, Loader=yaml.FullLoader)
 
-            self.input = conf['pathconfig']['input']
-            self.parentdir = conf['pathconfig']['parentdir']
-            self.outputdir = conf['pathconfig']['outputdir']
+            self.input = conf['pathconfig']['input_dir']
+            self.parentdir = conf['pathconfig']['parent_output_dir']
+            self.outputdir = conf['pathconfig']['child_output_dir']
 
             conf['joinconfig']['join_col_index'] = join_col_index
             conf['joinconfig']['wherelval'] = wherelval_index
