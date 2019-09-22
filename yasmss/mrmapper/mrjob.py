@@ -18,8 +18,10 @@ class MRJob:
         self.mapper = "groupby_mapper"
         self.reducer = "groupby_reducer"
         self.input = None
-        self.output = None
+        self.parentdir = None
         self.table = None
+        self.table1 = None
+        self.table2 = None
 
 
     def _get_set_config(self, queryset, sel_col_indexes, agg_index):
@@ -28,7 +30,7 @@ class MRJob:
             conf = yaml.load(file, Loader=yaml.FullLoader)
 
         self.input = conf['pathconfig']['input']
-        self.output = conf['pathconfig']['output']
+        self.parentdir = conf['pathconfig']['parentdir']
         self.hadoop_streaming_jar = conf['pathconfig']['hadoop_streaming_jar']
         self.outputdir = conf['pathconfig']['outputdir']
 
@@ -40,6 +42,25 @@ class MRJob:
 
         with open("config.yaml", 'w') as target:
             yaml.dump(conf, target)
+
+    def _get_where_col_index(self,  queryset, table, wherecol):
+        index  = None
+        if table == self.table1:
+            table_schema_keys = list(schema.Schema().getSchemaDict(table=self.table1).keys())
+            index = table_schema_keys.index(wherecol)
+        else:
+            table_schema_keys = list(schema.Schema().getSchemaDict(table=self.table2).keys())
+            index = table_schema_keys.index(wherecol)
+        return index
+
+
+    def _get_col_len(self, table):
+        tab_len = None
+        if table == 1:
+            tab_len = len(list(schema.Schema().getSchemaDict(table=self.table1).keys()))
+        else:
+            tab_len = len(list(schema.Schema().getSchemaDict(table=self.table2).keys()))
+        return tab_len
 
 
     def start_mrjob(self, queryset, classtype):
@@ -54,17 +75,69 @@ class MRJob:
             
             self._get_set_config(queryset, sel_col_indexes, agg_index)
             
-            command = 'hadoop jar {hadoop_streaming_jar} -mapper "python mrmapper/groupby_mapper.py" -reducer "python mrmapper/groupby_reducer.py" -input /{input}/{table}.csv -output /{output}/{outputdir}'.format(
-                            table=queryset.fromtable, input=self.input, output=self.output, hadoop_streaming_jar=self.hadoop_streaming_jar, outputdir=self.outputdir)
+            command = 'hadoop jar {hadoop_streaming_jar} -mapper "python mrmapper/groupby_mapper.py" -reducer "python mrmapper/groupby_reducer.py" -input /{input}/{table}.csv -output /{parent}/{outputdir}'.format(
+                            table=queryset.fromtable, input=self.input, parent=self.parentdir, hadoop_streaming_jar=self.hadoop_streaming_jar, outputdir=self.outputdir)
             
             start= time.time()
             os.system(command)
-            
+
             time_delta = time.time() - start
-            
+
+            from mrresult import groupby_result
+            res = groupby_result.MrResult(queryset)
+            mrout = res.get_result('groupby')
+            mrresult = {'mrout': mrout, 'Time taken': time_delta}
+            return mrresult
+
+        else:
+            table_schema_keys = list(schema.Schema().getSchemaDict(table=queryset.fromtable).keys())
+            join_col = queryset.onlval.split('.')[1]
+            join_col_index = table_schema_keys.index(join_col)
+
+            self.table1 = queryset.fromtable
+            self.table2 = queryset.jointable
+
+            wheretable = queryset.wherelval.split('.')[0]
+
+            wherelval = queryset.wherelval.split('.')[1]
+
+            wherelval_index = self._get_where_col_index(queryset, wheretable, wherelval)
+
+            whererval = queryset.whererval
+
+            whereop = queryset.whereop
+
+            conf = {}
+            with open("config.yaml", 'r') as file:
+                conf = yaml.load(file, Loader=yaml.FullLoader)
+
+            self.input = conf['pathconfig']['input']
+            self.parentdir = conf['pathconfig']['parentdir']
+            self.outputdir = conf['pathconfig']['outputdir']
+
+            conf['joinconfig']['join_col_index'] = join_col_index
+            conf['joinconfig']['wherelval'] = wherelval_index
+            conf['joinconfig']['whererval'] = whererval
+            conf['joinconfig']['whereop'] = whereop
+            conf['joinconfig']['table1'] = self.table1
+            conf['joinconfig']['table2'] = self.table2
+            conf['joinconfig']['wheretable'] = 1 if wheretable == self.table1 else 2
+            conf['joinconfig']['table1_len'] = self._get_col_len(1)
+            conf['joinconfig']['table2_len'] = self._get_col_len(2)
+
+            with open("config.yaml", 'w') as target:
+                yaml.dump(conf, target)
+
+            command = 'mapred streaming -mapper "python mrmapper/join_mapper.py" -reducer "python mrmapper/join_reducer.py" -input /{input}/{table1}.csv -input /{input}/{table2}.csv -output /{parentdir}/{output}'.format(
+                input=self.input, parentdir=self.parentdir, output=self.outputdir, table1=self.table1, table2=self.table2)
+
+            start= time.time()
+            os.system(command)
+
+            time_delta = time.time() - start
+
             from mrresult import groupby_result
             res = groupby_result.MrResult(queryset)
             mrout = res.get_result()
             mrresult = {'mrout': mrout, 'Time taken': time_delta}
             return mrresult
-

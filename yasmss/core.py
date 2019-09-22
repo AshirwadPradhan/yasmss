@@ -5,6 +5,7 @@ from flask_restful import Resource, Api, reqparse
 
 app = Flask(__name__)
 api = Api(app)
+app.config['SECRET_KEY'] = 'you-will-never-guess'
 
 query = ""
 ps = reqparse.RequestParser()

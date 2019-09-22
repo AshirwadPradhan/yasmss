@@ -1,7 +1,17 @@
-agg_index: 1
-havlval: min
+agg_index: 2
+havlval: sum
 havop: '>'
-havrval: '25'
+havrval: '1000'
+joinconfig:
+  join_col_index: 0
+  table1: zipcodes
+  table1_len: 4
+  table2: users
+  table2_len: 5
+  wherelval: 1
+  whereop: <
+  whererval: '49'
+  wheretable: 2
 pathconfig:
   host_ip_port : hdfs://localhost:9000
   hadoop_streaming_jar: /usr/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar
@@ -9,4 +19,4 @@ pathconfig:
   parent_output_dir: test
   child_output_dir: op
 sel_col_indexes:
-- 0
+- 1
