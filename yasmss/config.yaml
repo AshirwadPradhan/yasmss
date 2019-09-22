@@ -3,9 +3,10 @@ havlval: min
 havop: '>'
 havrval: '25'
 pathconfig:
+  host_ip_port : hdfs://localhost:9000
   hadoop_streaming_jar: /usr/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar
-  input: test
-  output: test
-  outputdir: op
+  input_dir: test/input/
+  parent_output_dir: test
+  child_output_dir: op
 sel_col_indexes:
 - 0

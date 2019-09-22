@@ -10,11 +10,6 @@ query = ""
 ps = reqparse.RequestParser()
 ps.add_argument('query')
 
-class Home(Resource):
-    def get(self):
-        # Send the index Page as a response
-        return "Hello World!"
-
 
 class RunQuery(Resource):
     def get(self):
@@ -23,15 +18,36 @@ class RunQuery(Resource):
     def post(self):
         args = ps.parse_args()
         query = args['query']
-        parsedq = parser.Parse()
-        parsedQuery = parsedq.parseQuery(query.upper())
-        driveq = driver.RunQuery(parsedQuery)
-        runquery_op = driveq.run()
-        # json_runq = jsonizer.covrtJSon(runquery_op)
-        resp_d = {'MRresult': runquery_op.mrOutput, 'SparkResult': runquery_op.sparkOutput}
+        try:
+            parsedq = parser.Parse()
+            parsedQuery = parsedq.parseQuery(query.upper())
+        except NotImplementedError as e:
+            print(e)
+            return {"Err": e}, 400
+        except NameError as e:
+            print(e)
+            return {"Err:": e}, 400
+        except ValueError as e:
+            print(e)
+            return {"Err:": e}, 400
+        except Exception as e:
+            print(e)
+            return {"Err:": "Error"}, 400
+
+        try:
+            driveq = driver.RunQuery(parsedQuery)
+            runquery_op = driveq.run()
+        except TypeError as e:
+            print(e)
+            return {"Err:": e}, 400
+        except Exception as e:
+            print(e)
+            return {"Err:": "Error"}, 400
+        resp_d = {'MRresult': runquery_op.mrOutput,
+                  'SparkResult': runquery_op.sparkOutput}
         return resp_d, 201
 
-api.add_resource(Home, '/', '/index', '/home')
+
 api.add_resource(RunQuery, '/query')
 
 if __name__ == "__main__":
@@ -39,9 +55,3 @@ if __name__ == "__main__":
 
 # query = 'SELECT * FROM USERS INNERJOIN ZIPCODES ON USERS.ZIPCODE = ZICODES.ZIPCODE WHERE ZIPCODES.CITY = NEW YORK'
 # query = 'SELECT MOVIEID,SUM(RATING) FROM RATING GROUPBY MOVIEID HAVING SUM(RATING) > 1000'
-# parsedq = parser.Parse()
-# parsedQuery = parsedq.parseQuery(query.upper())
-# print(parsedQuery)
-# driveq = driver.RunQuery(parsedQuery)
-# runquery_op = driveq.run()
-# print("COMPLETED: "+runquery_op.sparkOutput)
