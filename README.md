@@ -1,4 +1,4 @@
-# ## Yet Another SQL to MapReduce and Spark Segregator (yasmss)
+# Yet Another SQL to MapReduce and Spark Segregator (yasmss)
 ## INDEX
 | Sr. No | Contents |
 | ----------- | ----------- |
