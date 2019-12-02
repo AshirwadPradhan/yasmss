@@ -5,6 +5,7 @@ from sparkmapper import sparkmapper
 from sparkresult import sparkresult
 from mrmapper import mrjob
 
+
 class RunQuery:
     """Initialize the MR and Spark jobs
     """
@@ -35,13 +36,12 @@ class RunQuery:
 
     def _initiateMRjob(self):
         if isinstance(self.parsedQuery, parser.QuerySetJoin):
-            # mrj = groupby_mapper.Mapper()
-            # mrj.startjob(self.parsedQuery, 'QuerySetJoin')
-            pass
+            mrj = mrjob.MRJob()
+            mrres = mrj.start_mrjob(self.parsedQuery, 'QuerySetJoin')
+            return mrres
         elif isinstance(self.parsedQuery, parser.QuerySetGroupBy):
             mrj = mrjob.MRJob()
             mrres = mrj.start_mrjob(self.parsedQuery, 'QuerySetGroupBy')
-            print(mrres)
             return mrres
         else:
             raise TypeError('Unidentified Class Type in MapReduce')

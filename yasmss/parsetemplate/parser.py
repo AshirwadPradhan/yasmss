@@ -133,7 +133,6 @@ class QuerySetGroupBy:
     def _processhaving(self):
         allowed_op = ['<=', '<', '=', '>', '>=']
         if not any(x in self.havcond for x in allowed_op):
-            # print('Having Condition error')
             raise NotImplementedError('Having clause operator is undefined')
         elif '<' in self.havcond:
             if '<=' in self.havcond:
@@ -165,11 +164,9 @@ class QuerySetGroupBy:
 
     def _comparegrouphav(self):
         if not self.selcolumns[-1] == self.havlval:
-            # print('Group and Having condition error')
             raise NameError(
                 'Different Aggregate Function in Select clause and Having clause')
         if not self.aggfunc in valid_aggr:
-            # print('Invalid aggregate function Error')
             raise NameError('Not a valid Aggregate Function')
 
     def getdata(self):
@@ -209,7 +206,7 @@ class Parse:
         self._cleanQuery()
         parsedQuery = None
         query_list = self.query.split()
-
+        
         if self._whichTemplate == Template.JOIN:
             if len(query_list) != 10:
                 # print("Error in Join query: Missing arguments")

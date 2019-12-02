@@ -17,8 +17,8 @@
 After all the pre-requisites mentioned above is installed on the machine then run the following commands on the terminal of your choice.
 
 1. Clone this Repository `git clone https://github.com/AshirwadPradhan/yasmss.git`
-2. `cd` into the directory `yasmss/yasmss`
-3. Then run `pip3 install -r requirements.txt`
+2. `cd` into the directory `yasmss/`
+3. Then run `pip3 install -r requirements.txt` and then `cd` into `yasmss` -> `/yasmss/yasmss`
 4. Then setup the following config files inside the project:
     >4.1 Open `config.yaml` in your favoraite code editor and modify the following config without the `{}`
     ```yaml

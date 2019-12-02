@@ -17,7 +17,3 @@ class Schema:
     def getSchemaDict(self, table):
         table_schema = self.schema[table]
         return table_schema
-
-
-if __name__ == "__main__":
-    print(Schema().getSchemaDict('users'))

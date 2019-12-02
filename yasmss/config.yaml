@@ -1,11 +1,22 @@
-agg_index: 1
-havlval: min
+agg_index: 2
+havlval: sum
 havop: '>'
-havrval: '25'
+havrval: '1000'
+joinconfig:
+  join_col_index: 4
+  table1: users
+  table1_len: 5
+  table2: zipcodes
+  table2_len: 4
+  wherelval: 2
+  whereop: '='
+  whererval: NEW YORK
+  wheretable: 2
 pathconfig:
-  hadoop_streaming_jar: /usr/share/hadoop/share/hadoop/tools/lib/hadoop-streaming-3.2.0.jar
-  input: test
-  output: test
-  outputdir: op
+  child_output_dir: op
+  hadoop_streaming_jar: /usr/hadoop/hadoop-3.1.2/share/hadoop/tools/lib/hadoop-streaming-3.1.2.jar
+  host_ip_port: hdfs://localhost:9000
+  input_dir: test/input/
+  parent_output_dir: test
 sel_col_indexes:
-- 0
+- 1

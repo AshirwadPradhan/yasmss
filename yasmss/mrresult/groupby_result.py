@@ -4,6 +4,8 @@
 import subprocess
 import os
 import yaml
+from schema import schema
+import collections
 
 class MrResult:
     def __init__(self,queryset):
@@ -12,17 +14,17 @@ class MrResult:
         self.queryset = queryset
         self.output = None
         self.opfile = "part-00000"
-        self.outputpath = None
+        self.parentdir = None
         self.outputdir = None
 
     def _get_outputpath(self):
         conf = {}
         with open("config.yaml", 'r') as file:
             conf = yaml.load(file, Loader=yaml.FullLoader)
-        self.outputpath = conf['pathconfig']['output']
-        self.outputdir = conf['pathconfig']['outputdir']
+        self.parentdir = conf['pathconfig']['parent_output_dir']
+        self.outputdir = conf['pathconfig']['child_output_dir']
         return "hdfs://localhost:9000/{path}/{outputdir}/{outputfile}".format(
-                path=self.outputpath, outputdir=self.outputdir, outputfile=self.opfile)
+                path=self.parentdir, outputdir=self.outputdir, outputfile=self.opfile)
 
 
     def _get_col_names(self):
@@ -43,9 +45,25 @@ class MrResult:
         self._cleanup()
 
     def _cleanup(self):
-        rm_output = "hdfs dfs -rm -r hdfs://localhost:9000/{path}/{outputdir}".format(path=self.outputpath, outputdir=self.outputdir)
+        rm_output = "hdfs dfs -rm -r hdfs://localhost:9000/{parent}/{outputdir}".format(parent=self.parentdir, outputdir=self.outputdir)
         os.system(rm_output)
 
-    def get_result(self):
-        self._groupby_res()
+    def _join_res(self):
+        self.output = self._get_outputpath()
+        t1_cols = list(schema.Schema().getSchemaDict(table=self.queryset.fromtable).keys())
+        t2_cols = list(schema.Schema().getSchemaDict(table=self.queryset.jointable).keys())
+        all_cols = t1_cols + t2_cols
+        all_cols = list(collections.OrderedDict.fromkeys(all_cols))
+        cat = subprocess.Popen(["hadoop", "fs", "-cat", self.output], stdout=subprocess.PIPE)
+        for line in cat.stdout:
+            temp_dict = dict(zip(all_cols, line.decode('utf-8').split('\n')[0].split('\t')))
+            self.json_result.append(temp_dict)
+        self._cleanup()
+
+
+    def get_result(self, groupby=None):
+        if groupby:
+            self._groupby_res()
+        else:
+            self._join_res()
         return self.json_result

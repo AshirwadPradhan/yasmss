@@ -6,10 +6,15 @@ import time
 import pyspark.sql.functions as f
 from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType, StringType, StructField, StructType
+import yaml
 
 from schema import schema
 
-baseURI = 'hdfs://localhost:9000/user/dominoUzu/input/'
+with open("config.yaml", 'r') as file:
+    data = yaml.load(file, Loader=yaml.FullLoader)
+
+baseURI = data['pathconfig']['host_ip_port'] + \
+    '/' + data['pathconfig']['input_dir']
 table_format = '.csv'
 
 
